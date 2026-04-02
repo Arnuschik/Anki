@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#ffffff;--surface:#f7f7f8;--surface2:#eeeff1;--border:#e2e3e7;--border2:#d0d1d6;
+  --text:#1a1a1e;--text2:#5a5b63;--text3:#8e8f97;
+  --again:#d93025;--hard:#e8a317;--good:#188038;--accent:#4a6cf7;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+button{font-family:inherit;cursor:pointer;outline:none;}
+textarea,input{font-family:inherit;outline:none;}
+details summary{list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+.wrap{max-width:560px;margin:0 auto;padding:32px 20px;}
+.page-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.5;}
+.deck-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+.deck-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;}
+.deck-card:hover{border-color:var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.deck-name{font-size:15px;font-weight:600;color:var(--text);}
+.deck-meta{font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;}
+.deck-actions{display:flex;gap:5px;flex-shrink:0;}
+.deck-btn{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:all .15s;}
+.deck-btn:hover{background:var(--surface);border-color:var(--border2);}
+.deck-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.deck-btn.primary:hover{opacity:.9;}
+.deck-btn.danger{color:var(--again);border-color:#f5c6c2;}
+.deck-btn.danger:hover{background:#fef0ef;}
+.deck-btn.anki-btn{color:var(--good);border-color:#b7e4c7;}
+.deck-btn.anki-btn:hover{background:#eef8f0;}
+.form-group{margin-bottom:18px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;transition:border-color .2s;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,108,247,.1);}
+.form-input::placeholder{color:var(--text3);}
+.form-input:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed;}
+textarea.form-input{min-height:160px;line-height:1.6;resize:vertical;}
+.slider-wrap{display:flex;align-items:center;gap:14px;}
+.slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--surface2);outline:none;}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.slider:disabled{opacity:.4;cursor:not-allowed;}
+.slider:disabled::-webkit-slider-thumb{cursor:not-allowed;}
+.slider-val{font-size:14px;font-weight:600;color:var(--text);min-width:24px;text-align:center;}
+.slider-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px;}
+.mode-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px;}
+.mode-btn{flex:1;padding:10px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all .2s;}
+.mode-btn.active{background:var(--accent);color:#fff;}
+.mode-btn:hover:not(.active):not(:disabled){color:var(--text2);background:var(--surface2);}
+.mode-btn:disabled{cursor:not-allowed;opacity:.5;}
+.mode-hint{font-size:11px;color:var(--text3);margin-top:5px;}
+.level-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.level-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.level-btn:hover{border-color:var(--border2);}
+.level-btn.active{border-color:var(--accent);background:rgba(74,108,247,.04);}
+.level-label{font-size:13px;font-weight:600;margin-bottom:2px;}
+.level-desc{font-size:10px;color:var(--text3);}
+.gen-btn{width:100%;padding:14px;border-radius:10px;font-size:14px;font-weight:600;margin-top:6px;border:none;transition:all .2s;}
+.gen-btn.ready{background:var(--accent);color:#fff;}
+.gen-btn.ready:hover{background:#3d5de6;}
+.gen-btn.loading{background:var(--surface2);color:var(--text3);cursor:not-allowed;}
+.gen-status{font-size:12px;color:var(--text3);text-align:center;margin-top:12px;min-height:20px;}
+.gen-prog-wrap{padding:4px 0;}
+.gen-prog-bar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:8px;}
+.gen-prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#7c5cfc);border-radius:3px;transition:width .3s ease-out;}
+.gen-prog-text{font-size:11px;color:var(--text3);text-align:center;}
+.gen-error{font-size:12px;color:var(--again);text-align:center;margin-top:10px;}
+.validation-hint{font-size:11px;color:var(--again);margin-top:4px;opacity:0;transition:opacity .2s;}
+.validation-hint.show{opacity:1;}
+.char-hint{font-size:11px;color:var(--text3);text-align:right;margin-top:4px;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.back-btn{background:none;border:none;color:var(--text2);font-size:13px;font-weight:500;padding:0;transition:color .15s;}
+.back-btn:hover{color:var(--text);}
+.nav-info{font-size:12px;color:var(--text3);}
+.prog-track{height:3px;background:var(--surface2);border-radius:2px;margin-bottom:20px;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s;}
+.score-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.score-pill{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;font-size:11px;color:var(--text2);}
+.sv{font-size:18px;font-weight:700;display:block;margin-bottom:1px;}
+.card{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:28px 24px;min-height:200px;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.card.flipped{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,108,247,.08);}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.pill{font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:6px;border:1px solid var(--border);color:var(--text2);font-weight:500;}
+.diff-dot{width:7px;height:7px;border-radius:50%;}
+.card-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:600;}
+.card-front{font-size:17px;font-weight:600;line-height:1.55;color:var(--text);flex:1;}
+.card-back{font-size:14px;line-height:1.7;color:var(--text2);flex:1;}
+.card-back b{color:var(--text);font-weight:600;}
+.card-back .ans-section{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:14px;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--border);font-weight:600;}
+.card-back .ans-section:first-child{margin-top:0;}
+.card-back .ans-formula{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin:6px 0;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:13px;color:var(--text);}
+.card-back .ans-example{background:#fef7ed;border-left:3px solid var(--hard);padding:8px 12px;margin:6px 0;font-size:13px;color:var(--text2);border-radius:0 6px 6px 0;}
+.card-back .ans-list{padding:3px 0 3px 10px;position:relative;font-size:13px;}
+.card-back .ans-list::before{content:"\2022";position:absolute;left:0;color:var(--text3);}
+.card-hint{font-size:11px;color:var(--text3);text-align:center;margin-top:auto;padding-top:14px;}
+.grade-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+.grade-btn{padding:14px 6px;border-radius:10px;border:1.5px solid;text-align:center;cursor:pointer;transition:all .15s;}
+.grade-btn:hover{opacity:.85;}
+.g-label{font-size:14px;font-weight:600;display:block;margin-bottom:2px;}
+.g-time{font-size:10px;opacity:.6;display:block;}
+.grade-again{background:#fef0ef;border-color:#f5c6c2;color:var(--again);}
+.grade-hard{background:#fef7ed;border-color:#f5dfa8;color:var(--hard);}
+.grade-good{background:#eef8f0;border-color:#b7e4c7;color:var(--good);}
+.result-wrap{padding:36px 0;text-align:center;}
+.result-num{font-size:48px;font-weight:800;color:var(--text);}
+.result-sub{font-size:13px;color:var(--text3);margin:6px 0 28px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 8px;text-align:center;}
+.stat-val{font-size:24px;font-weight:700;display:block;margin-bottom:2px;}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:500;}
+.action-row{display:flex;gap:8px;margin-top:22px;}
+.action-btn{flex:1;padding:12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+.action-btn:hover{opacity:.85;}
+.action-primary{background:var(--accent);border:1px solid var(--accent);color:#fff;}
+.action-secondary{background:var(--bg);border:1px solid var(--border);color:var(--text2);}
+.quiz-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:8px;transition:all .2s;}
+.quiz-card.answered{border-color:var(--border2);background:var(--surface);}
+.quiz-q{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5;color:var(--text);}
+.quiz-ans-text{margin-top:10px;font-size:13px;color:var(--text2);line-height:1.7;padding-left:12px;border-left:2px solid var(--border2);}
+.quiz-ans-text b{color:var(--text);font-weight:600;}
+.quiz-ans-text .ans-section{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:10px;margin-bottom:3px;font-weight:600;}
+.quiz-ans-text .ans-formula,.quiz-ans-text .ans-example{background:var(--surface);padding:6px 10px;margin:4px 0;font-size:12px;border-radius:4px;}
+.quiz-ans-text .ans-list{padding:2px 0 2px 10px;position:relative;font-size:12px;}
+.quiz-ans-text .ans-list::before{content:"\2022";position:absolute;left:0;color:var(--text3);}
+details summary{cursor:pointer;font-size:11px;color:var(--text3);font-weight:500;}
+details summary:hover{color:var(--text2);}
+.quiz-btn-row{display:flex;gap:8px;margin-top:10px;}
+.quiz-btn{flex:1;padding:9px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);border:1px solid var(--border);color:var(--text2);}
+.quiz-btn.sel-yes{background:#eef8f0;border-color:#b7e4c7;color:var(--good);}
+.quiz-btn.sel-no{background:#fef0ef;border-color:#f5c6c2;color:var(--again);}
+.submit-btn{width:100%;padding:13px;border-radius:10px;font-size:13px;font-weight:600;margin-top:8px;margin-bottom:28px;cursor:pointer;}
+.submit-on{background:var(--accent);border:1px solid var(--accent);color:#fff;}
+.submit-off{background:var(--surface);border:1px solid var(--border);color:var(--text3);cursor:not-allowed;}
+.edit-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;}
+.edit-card-header{display:flex;justify-content:space-between;align-items:center;}
+.edit-card-num{font-size:11px;color:var(--text3);font-weight:600;}
+.edit-diff{font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--border);color:var(--text2);}
+.edit-field{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;}
+.edit-field:focus{border-color:var(--accent);}
+textarea.edit-field{min-height:56px;resize:vertical;line-height:1.5;}
+.deck-label{font-size:12px;color:var(--text3);margin-bottom:14px;font-weight:500;}
+.empty{text-align:center;padding:52px 20px;color:var(--text3);}
+.empty-icon{font-size:40px;margin-bottom:14px;}
+.empty-title{font-size:16px;color:var(--text2);margin-bottom:6px;font-weight:600;}
+.empty-sub{font-size:12px;line-height:1.7;}
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
+.confirm-box{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:360px;width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.confirm-msg{font-size:15px;color:var(--text);margin-bottom:20px;line-height:1.5;font-weight:500;}
+.confirm-btns{display:flex;gap:8px;justify-content:center;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.toast.show{opacity:1;}
+.form-locked .form-input,.form-locked .slider,.form-locked .mode-btn,.form-locked .level-btn{pointer-events:none;opacity:.5;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" class="toast"></div>
+<div id="overlay"></div>
+<script>
+const DC={basic:"#188038",medium:"#e8a317",hard:"#d93025"};
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const uid=()=>Math.random().toString(36).slice(2,8);
+const STORE_KEY="flashcard-studio-decks";
+function saveDecks(){try{window.storage?.set(STORE_KEY,JSON.stringify(A.decks));}catch(e){}try{localStorage.setItem(STORE_KEY,JSON.stringify(A.decks));}catch(e){}}
+async function loadDecks(){try{const r=await window.storage?.get(STORE_KEY);if(r&&r.value)return JSON.parse(r.value);}catch(e){}try{const v=localStorage.getItem(STORE_KEY);if(v)return JSON.parse(v);}catch(e){}return[];}
+let toastTimer;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2400);}
+function showConfirm(msg,yesLabel,onYes,danger){const ov=document.getElementById("overlay");ov.innerHTML="";const w=el("div",{cls:"confirm-overlay"});const b=el("div",{cls:"confirm-box"});b.appendChild(d({cls:"confirm-msg"},[msg]));const btns=d({cls:"confirm-btns"});btns.appendChild(bt("Cancel",()=>{ov.innerHTML="";},"action-btn action-secondary"));const yb=bt(yesLabel,()=>{ov.innerHTML="";onYes();},"action-btn action-primary");if(danger)Object.assign(yb.style,{background:"var(--again)",borderColor:"var(--again)"});btns.appendChild(yb);b.appendChild(btns);w.appendChild(b);ov.appendChild(w);}
+
+let A={mode:"home",decks:[],activeDeck:null,studyDeck:[],studyIdx:0,flipped:false,score:{again:0,hard:0,good:0},streak:0,quizDeck:[],quizAnswers:{},quizDone:false,creating:false,genErr:"",editingDeck:null,createMode:"topic",createName:"",createContent:"",createCount:15,knowledgeLevel:"beginner"};
+
+function render(){document.getElementById("root").innerHTML="";document.getElementById("root").appendChild(build());}
+function el(tag,o,ch){const e=document.createElement(tag);if(o.cls)e.className=o.cls;if(o.style)Object.assign(e.style,o.style);if(o.onClick)e.addEventListener("click",o.onClick);(ch||[]).forEach(c=>{if(c!=null)e.appendChild(typeof c==="string"?document.createTextNode(c):c);});return e;}
+const d=(o,c)=>el("div",o,c||[]);
+const sp=(t,o)=>{const e=el("span",o||{});e.textContent=t;return e;};
+const bt=(t,fn,cls)=>{const b=el("button",{cls,onClick:fn});b.textContent=t;return b;};
+function build(){return({home,create,edit:editDeck,study,quiz,results})[A.mode]?.()||home();}
+function fmtDate(ts){if(!ts)return"";const diff=Math.floor((Date.now()-ts)/864e5);if(!diff)return"today";if(diff===1)return"yesterday";if(diff<7)return diff+"d ago";return new Date(ts).toLocaleDateString("en-US",{month:"short",day:"numeric"});}
+
+function home(){
+  const w=d({cls:"wrap"});
+  w.appendChild(d({cls:"page-title"},["Flashcard Studio"]));
+  w.appendChild(d({cls:"page-sub"},["Generate flashcards with AI, study with spaced repetition, export to Anki."]));
+  w.appendChild(bt("+ New Deck",()=>{A.mode="create";A.creating=false;A.genErr="";render();},"deck-btn primary"));
+  w.appendChild(d({style:{height:"20px"}}));
+  if(!A.decks.length){const e=d({cls:"empty"});e.appendChild(d({cls:"empty-icon"},["\uD83D\uDCDA"]));e.appendChild(d({cls:"empty-title"},["No decks yet"]));e.appendChild(d({cls:"empty-sub"},["Create your first deck above."]));w.appendChild(e);}
+  else{const dg=d({cls:"deck-grid"});A.decks.forEach(deck=>{const dc=d({cls:"deck-card"});const info=d({});info.appendChild(d({cls:"deck-name"},[deck.name]));const meta=d({cls:"deck-meta"});meta.appendChild(sp(deck.cards.length+" cards"));if(deck.lastStudied)meta.appendChild(sp("\u00B7 "+fmtDate(deck.lastStudied)));info.appendChild(meta);dc.appendChild(info);const act=d({cls:"deck-actions"});act.appendChild(bt("\u270E",()=>{A.editingDeck=deck.id;A.mode="edit";render();},"deck-btn"));act.appendChild(bt("\u2B07 Anki",()=>exportAnki(deck),"deck-btn anki-btn"));act.appendChild(bt("Quiz",()=>startQuiz(deck.id),"deck-btn"));act.appendChild(bt("Study",()=>startStudy(deck.id),"deck-btn primary"));act.appendChild(bt("\u2715",()=>showConfirm("Delete \""+deck.name+"\"?","Delete",()=>{A.decks=A.decks.filter(x=>x.id!==deck.id);saveDecks();render();},true),"deck-btn danger"));dc.appendChild(act);dg.appendChild(dc);});w.appendChild(dg);}
+  return w;
+}
+function startStudy(id){const dk=A.decks.find(d=>d.id===id);if(!dk?.cards.length){toast("No cards");return;}dk.lastStudied=Date.now();saveDecks();A.activeDeck=id;A.studyDeck=shuffle(dk.cards.map(c=>({...c})));A.studyIdx=0;A.flipped=false;A.score={again:0,hard:0,good:0};A.streak=0;A.mode="study";render();}
+function startQuiz(id){const dk=A.decks.find(d=>d.id===id);if(!dk?.cards.length){toast("No cards");return;}A.activeDeck=id;A.quizDeck=shuffle(dk.cards).slice(0,Math.min(10,dk.cards.length));A.quizAnswers={};A.quizDone=false;A.mode="quiz";render();}
+
+function create(){
+  const w=d({cls:"wrap"});const nav=d({cls:"nav"});
+  nav.appendChild(bt("\u2190 Back",()=>{if(A.creating)showConfirm("Cards are still generating. Leave anyway?","Leave",()=>{A.creating=false;A.mode="home";render();});else{A.mode="home";render();}},"back-btn"));
+  nav.appendChild(sp("New Deck",{cls:"nav-info"}));w.appendChild(nav);
+  const form=d({cls:A.creating?"form-locked":""});
+  const modeRow=d({cls:"mode-toggle"});
+  ["topic","content"].forEach(m=>{const b=el("button",{cls:"mode-btn"+(A.createMode===m?" active":""),onClick:()=>{if(!A.creating){A.createMode=m;render();}}});b.textContent=m==="topic"?"Topic Only":"Paste Content";if(A.creating)b.disabled=true;modeRow.appendChild(b);});
+  form.appendChild(modeRow);
+  const isTopic=A.createMode==="topic";
+  const ng=d({cls:"form-group"});ng.appendChild(el("label",{cls:"form-label"},[isTopic?"Topic":"Deck Name"]));
+  const ni=document.createElement("input");ni.className="form-input";ni.placeholder=isTopic?"e.g. LBO Modeling, Photosynthesis...":"e.g. ACC 403 Session 7";ni.value=A.createName;ni.disabled=A.creating;ni.addEventListener("input",()=>{A.createName=ni.value;});
+  const nameHint=d({cls:"validation-hint"},["Required"]);ng.appendChild(ni);ng.appendChild(nameHint);
+  if(isTopic)ng.appendChild(d({cls:"mode-hint"},["Claude generates cards from its knowledge"]));
+  form.appendChild(ng);
+  if(isTopic){const lg=d({cls:"form-group"});lg.appendChild(el("label",{cls:"form-label"},["Your Level"]));const lr=d({cls:"level-toggle"});const lbs=[];[{key:"beginner",label:"\uD83C\uDF31 Beginner",desc:"New to this"},{key:"intermediate",label:"\uD83D\uDCDA Intermediate",desc:"Know the basics"},{key:"advanced",label:"\uD83C\uDFAF Advanced",desc:"Deep dive"}].forEach(({key,label,desc})=>{const b=d({cls:"level-btn"+(A.knowledgeLevel===key?" active":""),onClick:()=>{if(A.creating)return;A.knowledgeLevel=key;lbs.forEach(x=>x.classList.remove("active"));b.classList.add("active");}});b.appendChild(d({cls:"level-label"},[label]));b.appendChild(d({cls:"level-desc"},[desc]));lr.appendChild(b);lbs.push(b);});lg.appendChild(lr);form.appendChild(lg);}
+  let ta=null,cHint=null;
+  if(!isTopic){const cg=d({cls:"form-group"});cg.appendChild(el("label",{cls:"form-label"},["Content"]));ta=document.createElement("textarea");ta.className="form-input";ta.rows=8;ta.disabled=A.creating;ta.placeholder="Paste lecture notes, slides, or any material.\nCards are generated strictly from this content.";ta.value=A.createContent;const cc=d({cls:"char-hint"},[A.createContent.length+" chars"]);cHint=d({cls:"validation-hint"},["At least 30 characters"]);ta.addEventListener("input",()=>{A.createContent=ta.value;cc.textContent=ta.value.length+" chars";if(ta.value.length>=30)cHint.classList.remove("show");});cg.appendChild(ta);cg.appendChild(cc);cg.appendChild(cHint);form.appendChild(cg);}
+  const sg=d({cls:"form-group"});sg.appendChild(el("label",{cls:"form-label"},["Cards"]));const sl=document.createElement("input");sl.type="range";sl.min=5;sl.max=30;sl.value=A.createCount;sl.className="slider";sl.disabled=A.creating;const sv=sp(String(A.createCount),{cls:"slider-val"});sl.addEventListener("input",()=>{A.createCount=parseInt(sl.value);sv.textContent=sl.value;});const sr=d({cls:"slider-wrap"});sr.appendChild(sl);sr.appendChild(sv);sg.appendChild(sr);sg.appendChild(d({cls:"slider-meta"},["5","30"]));form.appendChild(sg);
+  w.appendChild(form);
+  if(A.genErr)w.appendChild(d({cls:"gen-error"},[A.genErr]));
+  const gb=document.createElement("button");gb.className=A.creating?"gen-btn loading":"gen-btn ready";gb.textContent=A.creating?"Generating\u2026":"Generate Flashcards";gb.disabled=A.creating;
+  const st=document.createElement("div");st.className="gen-status";
+  gb.addEventListener("click",async()=>{if(A.creating)return;const name=A.createName.trim();const content=ta?ta.value.trim():"";let ok=true;if(!name){nameHint.classList.add("show");ok=false;}else nameHint.classList.remove("show");if(!isTopic&&content.length<30){cHint.classList.add("show");ok=false;}else if(cHint)cHint.classList.remove("show");if(!ok)return;A.creating=true;render();const ns=document.querySelector(".gen-status");const ng2=document.querySelector(".gen-btn");await gen(name,content,A.createCount,ns||st,ng2||gb,isTopic,A.knowledgeLevel);});
+  w.appendChild(gb);w.appendChild(st);return w;
+}
+
+async function gen(name,content,count,statEl,genBtn,topicMode,level){
+  const pw=document.createElement("div");pw.className="gen-prog-wrap";const pb=document.createElement("div");pb.className="gen-prog-bar";const pf=document.createElement("div");pf.className="gen-prog-fill";pb.appendChild(pf);pw.appendChild(pb);const pt=document.createElement("div");pt.className="gen-prog-text";pw.appendChild(pt);statEl.innerHTML="";statEl.appendChild(pw);
+  let cur=0,tgt=0,done=false,pi=0;const ph=["Analyzing\u2026","Generating\u2026","Building answers\u2026","Polishing\u2026","Almost done\u2026"];
+  const tick=()=>{if(done)return;cur+=(tgt-cur)*.12;if(cur>tgt-.5)cur=tgt;const p=Math.min(Math.round(cur),99);pf.style.width=p+"%";pt.textContent=ph[pi]+" "+p+"%";requestAnimationFrame(tick);};
+  const sim=setInterval(()=>{if(done)return clearInterval(sim);if(tgt<85)tgt+=(85-tgt)*.04;if(tgt>20&&pi<1)pi=1;if(tgt>45&&pi<2)pi=2;if(tgt>65&&pi<3)pi=3;if(tgt>80&&pi<4)pi=4;},200);
+  requestAnimationFrame(tick);
+  const lvl={beginner:"BEGINNER. Foundational definitions, core concepts, simple analogies. 50% basic, 35% medium, 15% hard.",intermediate:"INTERMEDIATE. Applications, connections, pitfalls. 20% basic, 50% medium, 30% hard.",advanced:"ADVANCED. Skip basics. Edge cases, nuanced distinctions, expert depth. 5% basic, 35% medium, 60% hard."};
+  const bf=`Each "back"=HTML. Use <b>term</b>, emoji before points, <div class="ans-section">LABEL</div>, <div class="ans-formula">x</div>, <div class="ans-example">x</div>, <div class="ans-list">x</div>. 2-3 short sections per card. Front can start with emoji.`;
+  const BS=count<=10?count:Math.ceil(count/2);const batches=[];let rem=count,bn=0;while(rem>0){const sz=Math.min(BS,rem);batches.push({size:sz,index:bn});rem-=sz;bn++;}const tot=batches.length;let bd=0;
+  const prompt=(sz,idx)=>{const v=tot>1&&idx>0?" Cover DIFFERENT subtopics than batch 1.":"";return topicMode?`Generate ${sz} flashcards about "${name}". ${lvl[level]||lvl.beginner} ${bf}${v} Topic labels max 3 words. JSON array only:[{"front":"...","back":"<HTML>","difficulty":"basic|medium|hard","topic":"..."}]`:`Generate ${sz} flashcards STRICTLY from this content (no external knowledge). 30% basic, 45% medium, 25% hard. ${bf}${v} Topic labels max 3 words.\nContent:---\n${content.slice(0,4000)}\n---\nJSON array only:[{"front":"...","back":"<HTML>","difficulty":"basic|medium|hard","topic":"..."}]`;};
+  const fetchB=async(b)=>{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:3000,messages:[{role:"user",content:prompt(b.size,b.index)}]})});if(!r.ok)throw new Error("API "+r.status);const data=await r.json();if(!data.content?.length)throw new Error("Empty response");const raw=data.content.filter(x=>x.type==="text").map(x=>x.text).join("").replace(/```json|```/g,"").trim();let c;try{c=JSON.parse(raw);}catch(e){throw new Error("Parse failed");}if(!Array.isArray(c))throw new Error("Bad format");bd++;tgt=Math.max(tgt,60+(bd/tot)*30);return c;};
+  try{
+    const res=await Promise.all(batches.map(fetchB));tgt=95;pi=4;await new Promise(r=>setTimeout(r,300));
+    const all=res.flat();if(!all.length)throw new Error("No cards");
+    const seen=new Set();const uniq=all.filter(c=>{const k=(c.front||"").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,40);if(seen.has(k))return false;seen.add(k);return true;});
+    const cards=uniq.map((c,i)=>({id:uid(),front:String(c.front||"Card "+(i+1)),back:String(c.back||""),difficulty:["basic","medium","hard"].includes(c.difficulty)?c.difficulty:"medium",topic:String(c.topic||name),html:true}));
+    done=true;clearInterval(sim);pf.style.width="100%";pt.textContent="Done! "+cards.length+" cards";await new Promise(r=>setTimeout(r,400));
+    A.decks.push({id:uid(),name,cards,created:Date.now(),lastStudied:null});saveDecks();A.creating=false;A.createName="";A.createContent="";A.createCount=15;startStudy(A.decks[A.decks.length-1].id);
+  }catch(err){done=true;clearInterval(sim);A.creating=false;A.genErr="Error: "+err.message;render();}
+}
+
+function editDeck(){const dk=A.decks.find(x=>x.id===A.editingDeck);if(!dk){A.mode="home";render();return d({});}const w=d({cls:"wrap"});const nav=d({cls:"nav"});nav.appendChild(bt("\u2190 Back",()=>{A.mode="home";render();},"back-btn"));nav.appendChild(sp("Edit \u00B7 "+dk.cards.length+" cards",{cls:"nav-info"}));w.appendChild(nav);const ng=d({cls:"form-group"});ng.appendChild(el("label",{cls:"form-label"},["Deck Name"]));const ni=document.createElement("input");ni.className="form-input";ni.value=dk.name;ni.addEventListener("change",()=>{dk.name=ni.value.trim()||dk.name;saveDecks();});ng.appendChild(ni);w.appendChild(ng);dk.cards.forEach((c,i)=>{const ec=d({cls:"edit-card"});const hd=d({cls:"edit-card-header"});hd.appendChild(sp("#"+(i+1),{cls:"edit-card-num"}));const rt=d({style:{display:"flex",gap:"6px",alignItems:"center"}});rt.appendChild(sp(c.difficulty,{cls:"edit-diff",style:{color:DC[c.difficulty]}}));rt.appendChild(bt("\u2715",()=>{dk.cards=dk.cards.filter(x=>x.id!==c.id);saveDecks();render();},"deck-btn danger"));hd.appendChild(rt);ec.appendChild(hd);const fi=document.createElement("input");fi.className="edit-field";fi.value=c.front;fi.addEventListener("change",()=>{c.front=fi.value;saveDecks();});ec.appendChild(fi);const bi=document.createElement("textarea");bi.className="edit-field";bi.value=c.back;bi.addEventListener("change",()=>{c.back=bi.value;saveDecks();});ec.appendChild(bi);w.appendChild(ec);});w.appendChild(bt("+ Add Card",()=>{dk.cards.push({id:uid(),front:"",back:"",difficulty:"medium",topic:dk.name});saveDecks();render();},"deck-btn"));return w;}
+
+function study(){const c=A.studyDeck[A.studyIdx];if(!c){A.mode="results";render();return d({});}const dn=A.score.again+A.score.hard+A.score.good;const rm=A.studyDeck.length-A.studyIdx;const pr=(dn/(dn+rm))*100;const dk=A.decks.find(x=>x.id===A.activeDeck);const w=d({cls:"wrap"});const nav=d({cls:"nav"});nav.appendChild(bt("\u2190 Decks",()=>{A.mode="home";render();},"back-btn"));const ri=d({style:{display:"flex",gap:"14px",alignItems:"center"}});ri.appendChild(sp(dn+" done \u00B7 "+rm+" left",{cls:"nav-info"}));if(A.streak>=3)ri.appendChild(sp("\uD83D\uDD25"+A.streak,{style:{fontSize:"12px",color:"var(--hard)"}}));nav.appendChild(ri);w.appendChild(nav);if(dk)w.appendChild(d({cls:"deck-label"},[dk.name]));w.appendChild(d({cls:"prog-track"},[d({cls:"prog-fill",style:{width:pr+"%"}})]));const sr=d({cls:"score-row"});[{k:"again",c:"var(--again)",l:"Again"},{k:"hard",c:"var(--hard)",l:"Hard"},{k:"good",c:"var(--good)",l:"Good"}].forEach(({k,c:co,l})=>{const p=d({cls:"score-pill"});const v=el("span",{cls:"sv",style:{color:co}});v.textContent=A.score[k];p.appendChild(v);p.appendChild(document.createTextNode(l));sr.appendChild(p);});w.appendChild(sr);const ce=d({cls:"card"+(A.flipped?" flipped":""),onClick:()=>{A.flipped=!A.flipped;render();}});const tp=d({cls:"card-top"});const pl=el("span",{cls:"pill"});pl.textContent=c.topic;tp.appendChild(pl);tp.appendChild(d({cls:"diff-dot",style:{background:DC[c.difficulty]}}));ce.appendChild(tp);if(!A.flipped){ce.appendChild(d({cls:"card-label"},["Question"]));const cf=d({cls:"card-front"});cf.innerHTML=c.front;ce.appendChild(cf);ce.appendChild(d({cls:"card-hint"},["Tap to reveal"]));}else{ce.appendChild(d({cls:"card-label"},["Answer"]));const cb=d({cls:"card-back"});if(c.html)cb.innerHTML=c.back;else cb.textContent=c.back;ce.appendChild(cb);}w.appendChild(ce);if(A.flipped){const gr=d({cls:"grade-row"});[{key:"again",label:"Again",cls:"grade-again"},{key:"hard",label:"Hard",cls:"grade-hard"},{key:"good",label:"Good",cls:"grade-good"}].forEach(({key,label,cls})=>{const b=d({cls:"grade-btn "+cls,onClick:()=>{A.score[key]++;if(key==="good")A.streak++;else A.streak=0;if(key==="again"){const ri2=Math.min(A.studyIdx+3+Math.floor(Math.random()*4),A.studyDeck.length);A.studyDeck.splice(ri2,0,{...c,id:uid()});}A.studyIdx++;if(A.studyIdx>=A.studyDeck.length){A.mode="results";render();return;}A.flipped=false;render();}});b.appendChild(el("span",{cls:"g-label"},[label]));gr.appendChild(b);});w.appendChild(gr);}return w;}
+
+function quiz(){const w=d({cls:"wrap"});const nav=d({cls:"nav"});nav.appendChild(bt("\u2190 Decks",()=>{A.mode="home";render();},"back-btn"));nav.appendChild(sp("Quiz \u00B7 "+A.quizDeck.length,{cls:"nav-info"}));w.appendChild(nav);if(!A.quizDone){A.quizDeck.forEach((c,i)=>{const ans=A.quizAnswers[c.id];const cd=d({cls:"quiz-card"+(ans?" answered":"")});const tp=d({style:{display:"flex",justifyContent:"space-between",marginBottom:"10px"}});const pl=el("span",{cls:"pill"});pl.textContent=c.topic;tp.appendChild(pl);tp.appendChild(sp("#"+(i+1),{style:{fontSize:"11px",color:"var(--text3)"}}));cd.appendChild(tp);const q=d({cls:"quiz-q"});q.innerHTML=c.front;cd.appendChild(q);const det=document.createElement("details");det.setAttribute("name","qa");const sum=document.createElement("summary");sum.textContent="\u25B8 Show answer";det.appendChild(sum);const at=d({cls:"quiz-ans-text"});if(c.html)at.innerHTML=c.back;else at.textContent=c.back;det.appendChild(at);det.style.marginBottom="12px";cd.appendChild(det);const br=d({cls:"quiz-btn-row"});[["yes","\u2713 Knew it","sel-yes"],["no","\u2717 Missed","sel-no"]].forEach(([v,l,sc])=>{const b=el("button",{cls:"quiz-btn"+(ans===v?" "+sc:""),onClick:()=>{A.quizAnswers[c.id]=v;render();}});b.textContent=l;br.appendChild(b);});cd.appendChild(br);w.appendChild(cd);});const allD=A.quizDeck.every(c=>A.quizAnswers[c.id]!==undefined);const sb=el("button",{cls:"submit-btn "+(allD?"submit-on":"submit-off"),onClick:()=>{if(allD){A.quizDone=true;render();}}});sb.textContent=allD?"See Results \u2192":"Answer all ("+Object.keys(A.quizAnswers).length+"/"+A.quizDeck.length+")";sb.disabled=!allD;w.appendChild(sb);}else{const cor=A.quizDeck.filter(c=>A.quizAnswers[c.id]==="yes").length;const res=d({cls:"result-wrap"});res.appendChild(d({cls:"result-num"},[cor+"/"+A.quizDeck.length]));res.appendChild(d({cls:"result-sub"},[Math.round(cor/A.quizDeck.length*100)>=80?"Strong.":"Review the misses."]));const ar=d({cls:"action-row"});ar.appendChild(bt("Again",()=>startQuiz(A.activeDeck),"action-btn action-secondary"));ar.appendChild(bt("Study",()=>startStudy(A.activeDeck),"action-btn action-secondary"));ar.appendChild(bt("\u2190 Decks",()=>{A.mode="home";render();},"action-btn action-primary"));res.appendChild(ar);w.appendChild(res);}return w;}
+
+function results(){const tot=A.score.again+A.score.hard+A.score.good;const pct=tot?Math.round(A.score.good/tot*100):0;const w=d({cls:"wrap"});const res=d({cls:"result-wrap"});res.appendChild(d({cls:"result-num"},[pct+"%"]));res.appendChild(d({cls:"result-sub"},[pct>=75?"Solid.":pct>=50?"Getting there.":"Keep at it."]));const sg=d({cls:"stat-grid"});[{k:"again",c:"var(--again)",l:"Again"},{k:"hard",c:"var(--hard)",l:"Hard"},{k:"good",c:"var(--good)",l:"Good"}].forEach(({k,c,l})=>{const sc=d({cls:"stat-card"});sc.appendChild(el("span",{cls:"stat-val",style:{color:c}},[String(A.score[k])]));sc.appendChild(el("span",{cls:"stat-lbl"},[l]));sg.appendChild(sc);});res.appendChild(sg);const ar=d({cls:"action-row"});ar.appendChild(bt("Restart",()=>startStudy(A.activeDeck),"action-btn action-secondary"));ar.appendChild(bt("\u2190 Decks",()=>{A.mode="home";render();},"action-btn action-primary"));res.appendChild(ar);w.appendChild(res);return w;}
+
+// ── Anki Export ──
+let _sql=null,_zip=null;
+async function loadLibs(){if(!_sql){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js";await new Promise((r,j)=>{s.onload=r;s.onerror=()=>j(new Error("sql.js failed"));document.head.appendChild(s);});_sql=await initSqlJs({locateFile:f=>"https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/"+f});}if(!_zip){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";await new Promise((r,j)=>{s.onload=r;s.onerror=()=>j(new Error("JSZip failed"));document.head.appendChild(s);});_zip=window.JSZip;}}
+
+function htmlToAnki(html){if(!html)return"";let s=html;s=s.replace(/<div class="ans-section">(.*?)<\/div>/gi,'<br><b>$1</b><br>');s=s.replace(/<div class="ans-formula">(.*?)<\/div>/gi,'<br><code>$1</code><br>');s=s.replace(/<div class="ans-example">(.*?)<\/div>/gi,'<br><i>\u2192 $1</i><br>');s=s.replace(/<div class="ans-list">(.*?)<\/div>/gi,'<br>\u2022 $1');s=s.replace(/<span class="emoji">(.*?)<\/span>/gi,'$1');s=s.replace(/(<br\s*\/?>){3,}/gi,'<br><br>');return s.trim();}
+
+async function exportAnki(deck){toast("Preparing export\u2026");try{await loadLibs();const db=new _sql.Database();const now=Math.floor(Date.now()/1000);const did=Math.floor(Math.random()*1e15);const mid=Math.floor(Math.random()*1e15);
+db.run(`CREATE TABLE col(id integer PRIMARY KEY,crt integer NOT NULL,mod integer NOT NULL,scm integer NOT NULL,ver integer NOT NULL,dty integer NOT NULL,usn integer NOT NULL,ls integer NOT NULL,conf text NOT NULL,models text NOT NULL,decks text NOT NULL,dconf text NOT NULL,tags text NOT NULL)`);
+db.run(`CREATE TABLE notes(id integer PRIMARY KEY,guid text NOT NULL,mid integer NOT NULL,mod integer NOT NULL,usn integer NOT NULL,tags text NOT NULL,flds text NOT NULL,sfld text NOT NULL,csum integer NOT NULL,flags integer NOT NULL,data text NOT NULL)`);
+db.run(`CREATE TABLE cards(id integer PRIMARY KEY,nid integer NOT NULL,did integer NOT NULL,ord integer NOT NULL,mod integer NOT NULL,usn integer NOT NULL,type integer NOT NULL,queue integer NOT NULL,due integer NOT NULL,ivl integer NOT NULL,factor integer NOT NULL,reps integer NOT NULL,lapses integer NOT NULL,left integer NOT NULL,odue integer NOT NULL,odid integer NOT NULL,flags integer NOT NULL,data text NOT NULL)`);
+db.run(`CREATE TABLE revlog(id integer PRIMARY KEY,cid integer NOT NULL,usn integer NOT NULL,ease integer NOT NULL,ivl integer NOT NULL,lastIvl integer NOT NULL,factor integer NOT NULL,time integer NOT NULL,type integer NOT NULL)`);
+db.run(`CREATE TABLE graves(usn integer NOT NULL,oid integer NOT NULL,type integer NOT NULL)`);
+const css=`.card{font-family:arial;font-size:20px;text-align:center;}code{background:#f0f0f0;padding:2px 6px;border-radius:3px;font-size:16px;}`;
+const model={};model[mid]={id:mid,name:deck.name,type:0,mod:now,usn:-1,sortf:0,did,tmpls:[{name:"Card 1",qfmt:"{{Front}}",afmt:'{{FrontSide}}<hr id="answer">{{Back}}',ord:0,bafmt:"",bqfmt:"",did:null}],flds:[{name:"Front",ord:0,sticky:false,rtl:false,font:"Arial",size:20,media:[]},{name:"Back",ord:1,sticky:false,rtl:false,font:"Arial",size:20,media:[]}],css,latexPre:"",latexPost:"",latexsvg:false,req:[[0,"any",[0]]]};
+const dc={};dc[did]={id:did,name:deck.name,mod:now,usn:-1,extendRev:50,extendNew:10,collapsed:false,browserCollapsed:false,desc:"",dyn:0,conf:1,newToday:[now,0],revToday:[now,0],lrnToday:[now,0],timeToday:[now,0]};dc["1"]={id:1,name:"Default",mod:now,usn:-1,conf:1,extendRev:50,extendNew:10,collapsed:false,browserCollapsed:false,desc:"",dyn:0,newToday:[now,0],revToday:[now,0],lrnToday:[now,0],timeToday:[now,0]};
+const dconf={"1":{id:1,name:"Default",new:{delays:[1,10],ints:[1,4,0],initialFactor:2500,order:1,perDay:20},rev:{perDay:200,ease4:1.3,ivlFct:1,maxIvl:36500,fuzz:.05},lapse:{delays:[10],mult:0,minInt:1,leechFails:8,leechAction:0},maxTaken:60,timer:0,autoplay:true,replayq:true,mod:0,usn:0}};
+db.run(`INSERT INTO col VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`,[1,now,now,now*1000,11,0,-1,0,JSON.stringify({nextPos:1,estTimes:true,activeDecks:[1],sortType:"noteFld",timeLim:0,sortBackwards:false,addToCur:true,curDeck:1,newSpread:0,dueCounts:true,curModel:mid,collapseTime:1200}),JSON.stringify(model),JSON.stringify(dc),JSON.stringify(dconf),"{}"]);
+const cs=s=>{let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;}return Math.abs(h);};
+const gg=()=>{const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";let s="";for(let i=0;i<10;i++)s+=c[Math.floor(Math.random()*c.length)];return s;};
+deck.cards.forEach((c,i)=>{const nid=now*1000+i;const cid=nid+1;const fr=c.front.replace(/<[^>]*>/g,"").trim();const bk=c.html?htmlToAnki(c.back):c.back;db.run(`INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)`,[nid,gg(),mid,now,-1,"",fr+"\x1f"+bk,fr,cs(fr),0,""]);db.run(`INSERT INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,[cid,nid,did,0,now,-1,0,0,i,0,2500,0,0,0,0,0,0,""]);});
+const data=db.export();db.close();const z=new _zip();z.file("collection.anki2",data);z.file("media","{}");const blob=await z.generateAsync({type:"blob"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=deck.name.replace(/[^a-zA-Z0-9_\- ]/g,"")+"_anki.apkg";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast("Exported "+deck.cards.length+" cards!");}catch(e){console.error(e);toast("Export failed: "+e.message);}}
+
+(async()=>{A.decks=await loadDecks();render();})();
+</script>
+</body>
+</html>
