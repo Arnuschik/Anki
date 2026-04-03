@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -18,11 +19,11 @@ details summary::-webkit-details-marker{display:none;}
 .page-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .page-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.5;}
 .deck-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
-.deck-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;}
+.deck-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;transition:all .15s;}
 .deck-card:hover{border-color:var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.04);}
 .deck-name{font-size:15px;font-weight:600;color:var(--text);}
-.deck-meta{font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;}
-.deck-actions{display:flex;gap:5px;flex-shrink:0;}
+.deck-meta{font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;}
+.deck-actions{display:flex;gap:5px;flex-wrap:wrap;}
 .deck-btn{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:500;border:1px solid var(--border);background:var(--bg);color:var(--text2);transition:all .15s;}
 .deck-btn:hover{background:var(--surface);border-color:var(--border2);}
 .deck-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -38,13 +39,33 @@ details summary::-webkit-details-marker{display:none;}
 .form-input::placeholder{color:var(--text3);}
 .form-input:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed;}
 textarea.form-input{min-height:160px;line-height:1.6;resize:vertical;}
-.slider-wrap{display:flex;align-items:center;gap:14px;}
-.slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--surface2);outline:none;}
+.slider-wrap{display:flex;align-items:center;gap:12px;}
+.slider{flex:1;min-width:0;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--surface2);outline:none;}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15);}
 .slider:disabled{opacity:.4;cursor:not-allowed;}
 .slider:disabled::-webkit-slider-thumb{cursor:not-allowed;}
-.slider-val{font-size:14px;font-weight:600;color:var(--text);min-width:24px;text-align:center;}
-.slider-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px;}
+.slider-val{font-size:16px;font-weight:700;color:var(--accent);min-width:28px;text-align:center;flex-shrink:0;}
+.slider-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px;padding:0 2px;}
+
+/* Mobile fixes */
+@media(max-width:480px){
+  .wrap{padding:20px 16px;}
+  .page-title{font-size:20px;}
+  .level-toggle{grid-template-columns:1fr 1fr 1fr;gap:4px;}
+  .level-btn{padding:10px 4px;}
+  .level-label{font-size:12px;}
+  .level-desc{font-size:9px;}
+  .grade-row{gap:6px;}
+  .grade-btn{padding:12px 4px;}
+  .g-label{font-size:13px;}
+  .score-row{gap:6px;}
+  .card{padding:22px 18px;min-height:180px;}
+  .card-front{font-size:16px;}
+  .deck-btn{padding:6px 10px;font-size:11px;}
+  .action-row{flex-wrap:wrap;}
+  .stat-grid{gap:6px;}
+  .quiz-card{padding:14px 14px;}
+}
 .mode-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px;}
 .mode-btn{flex:1;padding:10px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all .2s;}
 .mode-btn.active{background:var(--accent);color:#fff;}
@@ -209,7 +230,7 @@ function create(){
   if(isTopic){const lg=d({cls:"form-group"});lg.appendChild(el("label",{cls:"form-label"},["Your Level"]));const lr=d({cls:"level-toggle"});const lbs=[];[{key:"beginner",label:"\uD83C\uDF31 Beginner",desc:"New to this"},{key:"intermediate",label:"\uD83D\uDCDA Intermediate",desc:"Know the basics"},{key:"advanced",label:"\uD83C\uDFAF Advanced",desc:"Deep dive"}].forEach(({key,label,desc})=>{const b=d({cls:"level-btn"+(A.knowledgeLevel===key?" active":""),onClick:()=>{if(A.creating)return;A.knowledgeLevel=key;lbs.forEach(x=>x.classList.remove("active"));b.classList.add("active");}});b.appendChild(d({cls:"level-label"},[label]));b.appendChild(d({cls:"level-desc"},[desc]));lr.appendChild(b);lbs.push(b);});lg.appendChild(lr);form.appendChild(lg);}
   let ta=null,cHint=null;
   if(!isTopic){const cg=d({cls:"form-group"});cg.appendChild(el("label",{cls:"form-label"},["Content"]));ta=document.createElement("textarea");ta.className="form-input";ta.rows=8;ta.disabled=A.creating;ta.placeholder="Paste lecture notes, slides, or any material.\nCards are generated strictly from this content.";ta.value=A.createContent;const cc=d({cls:"char-hint"},[A.createContent.length+" chars"]);cHint=d({cls:"validation-hint"},["At least 30 characters"]);ta.addEventListener("input",()=>{A.createContent=ta.value;cc.textContent=ta.value.length+" chars";if(ta.value.length>=30)cHint.classList.remove("show");});cg.appendChild(ta);cg.appendChild(cc);cg.appendChild(cHint);form.appendChild(cg);}
-  const sg=d({cls:"form-group"});sg.appendChild(el("label",{cls:"form-label"},["Cards"]));const sl=document.createElement("input");sl.type="range";sl.min=5;sl.max=30;sl.value=A.createCount;sl.className="slider";sl.disabled=A.creating;const sv=sp(String(A.createCount),{cls:"slider-val"});sl.addEventListener("input",()=>{A.createCount=parseInt(sl.value);sv.textContent=sl.value;});const sr=d({cls:"slider-wrap"});sr.appendChild(sl);sr.appendChild(sv);sg.appendChild(sr);sg.appendChild(d({cls:"slider-meta"},["5","30"]));form.appendChild(sg);
+  const sg=d({cls:"form-group"});sg.appendChild(el("label",{cls:"form-label"},["Cards"]));const sl=document.createElement("input");sl.type="range";sl.min=5;sl.max=30;sl.value=A.createCount;sl.className="slider";sl.disabled=A.creating;const sv=sp(String(A.createCount),{cls:"slider-val"});sl.addEventListener("input",()=>{A.createCount=parseInt(sl.value);sv.textContent=sl.value;});const sr=d({cls:"slider-wrap"});sr.appendChild(sl);sr.appendChild(sv);sg.appendChild(sr);const sm=d({cls:"slider-meta"});sm.appendChild(sp("5"));sm.appendChild(sp("30"));sg.appendChild(sm);form.appendChild(sg);
   w.appendChild(form);
   if(A.genErr)w.appendChild(d({cls:"gen-error"},[A.genErr]));
   const gb=document.createElement("button");gb.className=A.creating?"gen-btn loading":"gen-btn ready";gb.textContent=A.creating?"Generating\u2026":"Generate Flashcards";gb.disabled=A.creating;
@@ -225,15 +246,29 @@ async function gen(name,content,count,statEl,genBtn,topicMode,level){
   const sim=setInterval(()=>{if(done)return clearInterval(sim);if(tgt<85)tgt+=(85-tgt)*.04;if(tgt>20&&pi<1)pi=1;if(tgt>45&&pi<2)pi=2;if(tgt>65&&pi<3)pi=3;if(tgt>80&&pi<4)pi=4;},200);
   requestAnimationFrame(tick);
   const lvl={beginner:"BEGINNER. Foundational definitions, core concepts, simple analogies. 50% basic, 35% medium, 15% hard.",intermediate:"INTERMEDIATE. Applications, connections, pitfalls. 20% basic, 50% medium, 30% hard.",advanced:"ADVANCED. Skip basics. Edge cases, nuanced distinctions, expert depth. 5% basic, 35% medium, 60% hard."};
-  const bf=`Each "back"=HTML. Use <b>term</b>, emoji before points, <div class="ans-section">LABEL</div>, <div class="ans-formula">x</div>, <div class="ans-example">x</div>, <div class="ans-list">x</div>. 2-3 short sections per card. Front can start with emoji.`;
+  const bf=`For each answer: start key sections with a label in CAPS and colon (DEFINITION:, FORMULA:, EXAMPLE:, KEY POINT:, WATCH OUT:). Use "- " for bullet items. Keep 2-3 short sections per card. Front can start with emoji.`;
   const BS=count<=10?count:Math.ceil(count/2);const batches=[];let rem=count,bn=0;while(rem>0){const sz=Math.min(BS,rem);batches.push({size:sz,index:bn});rem-=sz;bn++;}const tot=batches.length;let bd=0;
-  const prompt=(sz,idx)=>{const v=tot>1&&idx>0?" Cover DIFFERENT subtopics than batch 1.":"";return topicMode?`Generate ${sz} flashcards about "${name}". ${lvl[level]||lvl.beginner} ${bf}${v} Topic labels max 3 words. JSON array only:[{"front":"...","back":"<HTML>","difficulty":"basic|medium|hard","topic":"..."}]`:`Generate ${sz} flashcards STRICTLY from this content (no external knowledge). 30% basic, 45% medium, 25% hard. ${bf}${v} Topic labels max 3 words.\nContent:---\n${content.slice(0,4000)}\n---\nJSON array only:[{"front":"...","back":"<HTML>","difficulty":"basic|medium|hard","topic":"..."}]`;};
-  const fetchB=async(b)=>{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:3000,messages:[{role:"user",content:prompt(b.size,b.index)}]})});if(!r.ok)throw new Error("API "+r.status);const data=await r.json();if(!data.content?.length)throw new Error("Empty response");const raw=data.content.filter(x=>x.type==="text").map(x=>x.text).join("").replace(/```json|```/g,"").trim();let c;try{c=JSON.parse(raw);}catch(e){throw new Error("Parse failed");}if(!Array.isArray(c))throw new Error("Bad format");bd++;tgt=Math.max(tgt,60+(bd/tot)*30);return c;};
+  const prompt=(sz,idx)=>{const v=tot>1&&idx>0?" Cover DIFFERENT subtopics.":"";return topicMode?`You are a flashcard generator. Create exactly ${sz} flashcards about "${name}".\n${lvl[level]||lvl.beginner}\n${bf}${v}\nTopic labels: max 3 words.\n\nIMPORTANT: Output ONLY a raw JSON array. No markdown, no backticks, no explanation.\n[{"front":"question text","back":"answer text","difficulty":"basic","topic":"label"}]`:`You are a flashcard generator. Create exactly ${sz} flashcards from this content ONLY (no external knowledge).\n30% basic, 45% medium, 25% hard.\n${bf}${v}\nTopic labels max 3 words.\n\nContent:\n${content.slice(0,4000)}\n\nIMPORTANT: Output ONLY a raw JSON array. No markdown, no backticks, no explanation.\n[{"front":"question text","back":"answer text","difficulty":"basic","topic":"label"}]`;};
+  const parseCards=(raw)=>{let s=raw;s=s.replace(/```json\s*/gi,"").replace(/```/g,"").trim();const i=s.indexOf("["),j=s.lastIndexOf("]");if(i>=0&&j>i)s=s.slice(i,j+1);try{const c=JSON.parse(s);return Array.isArray(c)?c:[];}catch(e){const m=s.match(/\[\s*\{[\s\S]*\}\s*\]/);if(m)try{return JSON.parse(m[0]);}catch(e2){}throw e;}};
+  const fmtBack=(t)=>{if(!t)return"";let s=String(t);s=s.replace(/^([A-Z][A-Z /]{1,28}):\s*/gm,'<div class="ans-section">$1</div>');s=s.replace(/^[-\u2022]\s+(.+)$/gm,'<div class="ans-list">$1</div>');s=s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');s=s.replace(/\n/g,'<br>');s=s.replace(/(<br>){3,}/g,'<br><br>');return s;};
+  const fetchB=async(b,att)=>{att=att||0;try{
+    const body={model:"claude-sonnet-4-20250514",max_tokens:3000,system:"You are a JSON API. You ONLY output valid JSON arrays. Never include markdown, backticks, or explanations.",messages:[{role:"user",content:prompt(b.size,b.index)}]};
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const txt=await r.text();
+    let data;try{data=JSON.parse(txt);}catch(pe){throw new Error("Non-JSON response ("+r.status+"): "+txt.slice(0,150));}
+    if(!r.ok)throw new Error("API "+r.status+": "+(data.error?.message||txt.slice(0,150)));
+    if(!data.content||!data.content.length)throw new Error("No content in response: "+JSON.stringify(data).slice(0,150));
+    const raw=data.content.filter(x=>x.type==="text").map(x=>x.text).join("");
+    if(!raw)throw new Error("No text in content blocks: "+JSON.stringify(data.content).slice(0,150));
+    const c=parseCards(raw);
+    if(!c.length)throw new Error("0 cards parsed from: "+raw.slice(0,150));
+    bd++;tgt=Math.max(tgt,60+(bd/tot)*30);return c;
+  }catch(e){console.error("Attempt "+att+":",e.message);if(att<2){await new Promise(r=>setTimeout(r,1500*(att+1)));return fetchB(b,att+1);}throw e;}};
   try{
     const res=await Promise.all(batches.map(fetchB));tgt=95;pi=4;await new Promise(r=>setTimeout(r,300));
     const all=res.flat();if(!all.length)throw new Error("No cards");
     const seen=new Set();const uniq=all.filter(c=>{const k=(c.front||"").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,40);if(seen.has(k))return false;seen.add(k);return true;});
-    const cards=uniq.map((c,i)=>({id:uid(),front:String(c.front||"Card "+(i+1)),back:String(c.back||""),difficulty:["basic","medium","hard"].includes(c.difficulty)?c.difficulty:"medium",topic:String(c.topic||name),html:true}));
+    const cards=uniq.map((c,i)=>({id:uid(),front:String(c.front||"Card "+(i+1)),back:fmtBack(c.back||""),difficulty:["basic","medium","hard"].includes(c.difficulty)?c.difficulty:"medium",topic:String(c.topic||name),html:true}));
     done=true;clearInterval(sim);pf.style.width="100%";pt.textContent="Done! "+cards.length+" cards";await new Promise(r=>setTimeout(r,400));
     A.decks.push({id:uid(),name,cards,created:Date.now(),lastStudied:null});saveDecks();A.creating=false;A.createName="";A.createContent="";A.createCount=15;startStudy(A.decks[A.decks.length-1].id);
   }catch(err){done=true;clearInterval(sim);A.creating=false;A.genErr="Error: "+err.message;render();}
@@ -251,7 +286,7 @@ function results(){const tot=A.score.again+A.score.hard+A.score.good;const pct=t
 let _sql=null,_zip=null;
 async function loadLibs(){if(!_sql){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js";await new Promise((r,j)=>{s.onload=r;s.onerror=()=>j(new Error("sql.js failed"));document.head.appendChild(s);});_sql=await initSqlJs({locateFile:f=>"https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/"+f});}if(!_zip){const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";await new Promise((r,j)=>{s.onload=r;s.onerror=()=>j(new Error("JSZip failed"));document.head.appendChild(s);});_zip=window.JSZip;}}
 
-function htmlToAnki(html){if(!html)return"";let s=html;s=s.replace(/<div class="ans-section">(.*?)<\/div>/gi,'<br><b>$1</b><br>');s=s.replace(/<div class="ans-formula">(.*?)<\/div>/gi,'<br><code>$1</code><br>');s=s.replace(/<div class="ans-example">(.*?)<\/div>/gi,'<br><i>\u2192 $1</i><br>');s=s.replace(/<div class="ans-list">(.*?)<\/div>/gi,'<br>\u2022 $1');s=s.replace(/<span class="emoji">(.*?)<\/span>/gi,'$1');s=s.replace(/(<br\s*\/?>){3,}/gi,'<br><br>');return s.trim();}
+function htmlToAnki(html){if(!html)return"";let s=html;s=s.replace(/<div class="ans-section">(.*?)<\/div>/gi,'<br><b>$1</b><br>');s=s.replace(/<div class="ans-list">(.*?)<\/div>/gi,'<br>\u2022 $1');s=s.replace(/<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>/gi,'<br><br>');return s.trim();}
 
 async function exportAnki(deck){toast("Preparing export\u2026");try{await loadLibs();const db=new _sql.Database();const now=Math.floor(Date.now()/1000);const did=Math.floor(Math.random()*1e15);const mid=Math.floor(Math.random()*1e15);
 db.run(`CREATE TABLE col(id integer PRIMARY KEY,crt integer NOT NULL,mod integer NOT NULL,scm integer NOT NULL,ver integer NOT NULL,dty integer NOT NULL,usn integer NOT NULL,ls integer NOT NULL,conf text NOT NULL,models text NOT NULL,decks text NOT NULL,dconf text NOT NULL,tags text NOT NULL)`);
