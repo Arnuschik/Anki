@@ -253,7 +253,7 @@ async function gen(name,content,count,statEl,genBtn,topicMode,level){
   const fmtBack=(t)=>{if(!t)return"";let s=String(t);s=s.replace(/^([A-Z][A-Z /]{1,28}):\s*/gm,'<div class="ans-section">$1</div>');s=s.replace(/^[-\u2022]\s+(.+)$/gm,'<div class="ans-list">$1</div>');s=s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');s=s.replace(/\n/g,'<br>');s=s.replace(/(<br>){3,}/g,'<br><br>');return s;};
   const fetchB=async(b,att)=>{att=att||0;try{
     const body={model:"claude-sonnet-4-20250514",max_tokens:3000,system:"You are a JSON API. You ONLY output valid JSON arrays. Never include markdown, backticks, or explanations.",messages:[{role:"user",content:prompt(b.size,b.index)}]};
-    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const txt=await r.text();
     let data;try{data=JSON.parse(txt);}catch(pe){throw new Error("Non-JSON response ("+r.status+"): "+txt.slice(0,150));}
     if(!r.ok)throw new Error("API "+r.status+": "+(data.error?.message||txt.slice(0,150)));
